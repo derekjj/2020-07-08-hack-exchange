@@ -1,16 +1,29 @@
 <template lang="pug">
   .container
-    .card.m-4
-      .card-header Exchange Rate
+    Loading(:active.sync="isLoading"
+      is-full-page=true)
+    .card.m-4.border-0.shadow-lg.rounded
+      .card-header.bg-success
+        h2 Currency Exchange
+      .card-title.p-2.bg-danger(v-if="error")
+        .text-center.text-white
+          h4 {{error}}
       .card-body.p-4
         .row.p-4
-          .col-5.p-4 1
-            b-form-select(v-model="selectedFrom" :options="options" @change="getRates")
+          .col-5.p-4
+            .row
+              .col
+                b-form-input(id="amountFrom" type="number" v-model="amountFrom")
+              .col
+                b-form-select(v-model="selectedFrom" :options="options" @change="getRates")
           .col-2.p-4
             h1 =
           .col-5.p-4
-            div(v-if="rate") {{rate.toFixed(4)}}
-            b-form-select(v-model="selectedTo" :options="options")
+            .row
+              .col
+                b-form-input(v-if="amountTo" id="amountTo" type="number" v-model="amountTo.toFixed(4)" disabled)
+              .col
+                b-form-select(v-model="selectedTo" :options="options")
             //- .row(v-for="(rate, currency) in rates" :key="currency")
             //-   .col
             //-     | {{currency}}: {{rate}}
@@ -18,9 +31,16 @@
 
 <script>
 import axios from "axios";
+import Loading from "vue-loading-overlay";
+import "vue-loading-overlay/dist/vue-loading.css";
 export default {
+  components: {
+    Loading
+  },
   data() {
     return {
+      isLoading: true,
+      amountFrom: 1,
       rates: null,
       selectedFrom: "CAD",
       selectedTo: "CAD",
@@ -65,24 +85,37 @@ export default {
   mounted() {
     this.getRates();
   },
+
+  async created() {
+    try {
+      let res = await fetch(
+        `https://source.unsplash.com/1600x900/?money`
+      ).catch();
+      document.body.style.backgroundImage = (await "url('") + res.url + "')";
+    } catch (err) {
+      console.log("Failed to load random remote image,", err);
+    }
+  },
   methods: {
     async getRates() {
+      this.isLoading = true;
       await axios
         .get(`https://api.exchangeratesapi.io/latest?base=${this.selectedFrom}`)
         .then(response => {
-          // console.log(response.data);
           this.rates = response.data.rates;
-          // console.log(this.rates);
         })
         .catch(error => {
-          this.error = error;
-          console.warn("Failed to fetch rates");
+          this.error = "Failed to fetch rates";
+          console.warn("Failed to fetch rates", error);
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     }
   },
   computed: {
-    rate() {
-      return this.rates ? this.rates[this.selectedTo] : null;
+    amountTo() {
+      return this.rates ? this.rates[this.selectedTo] * this.amountFrom : null;
     }
   }
 };

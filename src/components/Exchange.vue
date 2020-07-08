@@ -13,15 +13,15 @@
           h4 {{error}}
       .card-body.p-4
         .row.p-4
-          .col-5.p-4
+          .col-md-5.p-4
             .row
               .col
                 b-form-input(id="amountFrom" type="number" v-model="amountFrom")
               .col
                 b-form-select(v-model="selectedFrom" :options="options" @change="getRates")
-          .col-2.p-4
+          .col-md-2.p-4
             h1 =
-          .col-5.p-4
+          .col-md-5.p-4
             .row
               .col
                 b-form-input(v-if="amountTo" id="amountTo" type="number" v-model="amountTo.toFixed(4)" disabled)
@@ -104,6 +104,7 @@ export default {
       await axios
         .get(`https://api.exchangeratesapi.io/latest?base=${this.selectedFrom}`)
         .then(response => {
+          console.log(response.data);
           this.rates = response.data.rates;
         })
         .catch(error => {

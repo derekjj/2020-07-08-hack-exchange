@@ -1,7 +1,10 @@
 <template lang="pug">
   .container
-    Loading(:active.sync="isLoading"
-      is-full-page=true)
+    Loading(
+      :active.sync="isLoading",
+      is-full-page=true,
+      color= '#28a745',
+      background-color= '#ffffff')
     .card.m-4.border-0.shadow-lg.rounded
       .card-header.bg-success
         h2 Currency Exchange
@@ -82,11 +85,8 @@ export default {
       ]
     };
   },
-  mounted() {
-    this.getRates();
-  },
-
-  async created() {
+  async mounted() {
+    await (this.isLoading = true);
     try {
       let res = await fetch(
         `https://source.unsplash.com/1600x900/?money`
@@ -95,6 +95,8 @@ export default {
     } catch (err) {
       console.log("Failed to load random remote image,", err);
     }
+    await this.getRates();
+    await (this.isLoading = false);
   },
   methods: {
     async getRates() {

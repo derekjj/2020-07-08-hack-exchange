@@ -21,8 +21,10 @@
                 b-form-select(v-model="selectedFrom" :options="options" @change="getRates")
           .col-md-2.p-4
             h1 =
-          .col-md-5.p-4(v-for="i in numConvertions")
-            To(:rates="rates", :options="options", :amountFrom="parseInt(amountFrom)")
+          .col-md-5.p-4
+            .row.p-2(v-for="i in numConvertions")
+              .col
+                To(:rates="rates", :options="options", :amountFrom="parseInt(amountFrom)")
         .row.p-4
           .col
             b-button(@click="addConvertion") +

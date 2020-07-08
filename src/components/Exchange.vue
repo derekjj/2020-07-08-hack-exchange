@@ -21,27 +21,26 @@
                 b-form-select(v-model="selectedFrom" :options="options" @change="getRates")
           .col-md-2.p-4
             h1 =
-          .col-md-5.p-4
-            .row
-              .col
-                b-form-input(v-if="amountTo" id="amountTo" type="number" v-model="amountTo.toFixed(4)" disabled)
-              .col
-                b-form-select(v-model="selectedTo" :options="options")
-            //- .row(v-for="(rate, currency) in rates" :key="currency")
-            //-   .col
-            //-     | {{currency}}: {{rate}}
+          .col-md-5.p-4(v-for="i in numConvertions")
+            To(:rates="rates", :options="options", :amountFrom="parseInt(amountFrom)")
+        .row.p-4
+          .col
+            b-button(@click="addConvertion") +
 </template>
 
 <script>
 import axios from "axios";
 import Loading from "vue-loading-overlay";
+import To from "./To";
 import "vue-loading-overlay/dist/vue-loading.css";
 export default {
   components: {
-    Loading
+    Loading,
+    To
   },
   data() {
     return {
+      numConvertions: 1,
       isLoading: true,
       amountFrom: 1,
       rates: null,
@@ -104,7 +103,6 @@ export default {
       await axios
         .get(`https://api.exchangeratesapi.io/latest?base=${this.selectedFrom}`)
         .then(response => {
-          console.log(response.data);
           this.rates = response.data.rates;
         })
         .catch(error => {
@@ -114,6 +112,9 @@ export default {
         .finally(() => {
           this.isLoading = false;
         });
+    },
+    addConvertion() {
+      this.numConvertions++;
     }
   },
   computed: {
